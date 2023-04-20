@@ -28,7 +28,7 @@ def scan(source):
         else:
             print('Error: Unexpected character: ',source[j])
             return -1
-    return
+    return source
 
 def calculo(lista):
     while len(lista) > 1:
@@ -53,9 +53,9 @@ with open('Calc1.stk', 'r') as arquivo:
         linha = linha.strip()
         pilha.insert(0,linha)
 
-tokens = scan(pilha)
+scan(pilha)
 
-if tokens != -1:
+if pilha != -1:
     for token in reversed(pilha):
         token.info()
     print(f'Saída: {calculo(pilha)[0].value}')
