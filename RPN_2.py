@@ -31,31 +31,31 @@ def scan(source):
     return
 
 def calculo(lista):
-    n = 0
     while len(lista) > 1:
-        if lista[n].type != 'NUM':
-            if lista[n+1].type != 'NUM':
-                n += 1
-                continue
+        if lista[0].type != 'NUM':
+            if lista[1].type != 'NUM':
+                lista = lista[:1] + calculo(lista[1:])
             else:
-                resultado = operando(lista[n+2].value,lista[n+1].value,lista[n].value)
-                lista[n] = Token('NUM',resultado)
-                lista.pop(n+1)
-                lista.pop(n+1)
-                n = 0
-    return lista[0].value
+                if lista[2].type == 'NUM':
+                    resultado = operando(lista[2].value,lista[1].value,lista[0].value)
+                    lista[0] = Token('NUM',resultado)
+                    lista.pop(1)
+                    lista.pop(1)
+                else:
+                    lista = lista[:2] + calculo(lista[2:])
+        else:
+            return lista
+    return lista
 
 
-with open('teste.txt', 'r') as arquivo:
+with open('Calc1.stk', 'r') as arquivo:
     for linha in arquivo:
         linha = linha.strip()
         pilha.insert(0,linha)
-print('Arquivo lido')
-print(pilha)
 
 tokens = scan(pilha)
 
 if tokens != -1:
-    print('Tokens criados')
-
-    print(f'Saída: {calculo(pilha)}')
+    for token in reversed(pilha):
+        token.info()
+    print(f'Saída: {calculo(pilha)[0].value}')
