@@ -1,3 +1,13 @@
+dicio = {'+':'PLUS','-':'MINUS','/':'SLASH','*':'STAR'}
+pilha = []
+
+class Token:
+    def __init__(self,type,value):
+        self.type = type
+        self.value = value
+    def info(self):
+        print(f'Token[type={self.type},lexeme={self.value}]')
+
 def operando(x,y,z):
     if z == "+":
         return x + y
@@ -7,63 +17,45 @@ def operando(x,y,z):
         return x * y
     elif z == '/':
         return x / y
+    
+def scan(source):
+    for j in range(len(source)):
+        if (source[j].isdigit()) or (source[j] in dicio.keys()):
+            if source[j] in dicio.keys():
+                source[j] = Token(dicio[source[j]],source[j])
+            else:
+                source[j] = Token('NUM',int(source[j]))
+        else:
+            print('Error: Unexpected character: ',source[j])
+            return -1
+    return
 
-resultado = 0
-first = False
-second = False
-resultado = [0,0,0,0]
-previous = False
-class Token:
-    def __init__(self,type,value):
-        self.type = type
-        self.value = value
-    def info(self):
-        print(f'Token[type={self.type},lexeme={self.value}]')
-error = False
+def calculo(lista):
+    n = 0
+    while len(lista) > 1:
+        if lista[n].type != 'NUM':
+            if lista[n+1].type != 'NUM':
+                n += 1
+                continue
+            else:
+                resultado = operando(lista[n+2].value,lista[n+1].value,lista[n].value)
+                lista[n] = Token('NUM',resultado)
+                lista.pop(n+1)
+                lista.pop(n+1)
+                n = 0
+    return lista[0].value
+
+
 with open('teste.txt', 'r') as arquivo:
     for linha in arquivo:
         linha = linha.strip()
-        try:
-            linha = int(linha)
-            linha_ = Token('NUM',linha)
-            linha_.info()
-            if not first:
-                resultado[0] = linha
-                first = True
-            elif not second:
-                resultado[1] = linha
-                second = True
-        except ValueError:
-            linha = str(linha)
-            if linha in ['+','-','/','*']:
-                if linha == '+':
-                    linha_ = Token('PLUS',linha)
-                elif linha == '-':
-                    linha_ = Token('MINUS',linha)
-                elif linha == '/':
-                    linha_ = Token('SLASH',linha)
-                elif linha == '*':
-                    linha_ = Token('STAR',linha)
-                linha_.info()
-                if (first and second):
-                    if not previous:
-                        resultado[2] = operando(resultado[0],resultado[1],linha)
-                        previous = True
-                        first = False
-                        second = False
-                    else:
-                        resultado[3] = operando(resultado[0],resultado[1],linha)
-                        first = False
-                        second = False 
-                elif first:
-                    resultado[2] = operando(resultado[0],resultado[2],linha)
-                    first = False
-                else:
-                    resultado[2] = operando(resultado[2],resultado[3],linha)
-            else:
-                print(f'Error: Unexpected character: {linha}')
-                error = True
-                break
+        pilha.insert(0,linha)
+print('Arquivo lido')
+print(pilha)
 
-if not error:
-    print(f'Saída: {resultado[2]}')
+tokens = scan(pilha)
+
+if tokens != -1:
+    print('Tokens criados')
+
+    print(f'Saída: {calculo(pilha)}')
